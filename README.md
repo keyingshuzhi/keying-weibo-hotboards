@@ -8,13 +8,13 @@
 
 ## ✨ 功能亮点
 
-- **两大榜（热搜/社会）原生态抓取**：不改动数据源，不做权重干预。  
-- **AI 摘要（DeepSeek）**：自动生成要点与趋势点评；控制台会打印调用可用性与成功状态。  
-- **Top 3 原文链接**：每个榜单固定展示前 3 条，便于快速浏览与复核。  
-- **图片渲染**：优先输出**两榜合并单图**；若环境不支持自动回退为两张单图。  
-- **企业微信推送（WeCom）**：自动分片发送 Markdown，支持图片/整页截图。  
-- **关键词筛选**：支持「不筛选 / 科技快捷筛 / 命令行自定义 / 文件读取 / 环境变量」五种模式。  
-- **安全日志**：`key/token/cookie/webhook` 自动打码；URL 仅保留 host，参数值统一 `**`。  
+- **两大榜（热搜/社会）原生态抓取**：不改动数据源，不做权重干预。
+- **AI 摘要（DeepSeek）**：自动生成要点与趋势点评；控制台会打印调用可用性与成功状态。
+- **Top 3 原文链接**：每个榜单固定展示前 3 条，便于快速浏览与复核。
+- **图片渲染**：优先输出**两榜合并单图**；若环境不支持自动回退为两张单图。
+- **企业微信推送（WeCom）**：自动分片发送 Markdown，支持图片/整页截图。
+- **关键词筛选**：支持「不筛选 / 科技快捷筛 / 命令行自定义 / 文件读取 / 环境变量」五种模式。
+- **安全日志**：`key/token/cookie/webhook` 自动打码；URL 仅保留 host，参数值统一 `**`。
 
 ---
 
@@ -54,6 +54,7 @@ weibo_hotSearch/
 ## 🚀 环境与安装
 
 **要求：**
+
 - Python **3.12**
 - Google Chrome **142.0.7444.60 (arm64)** 与 **chromedriver** 版本一致
 - macOS/arm64 验证通过（其他平台请自行评估）
@@ -116,26 +117,31 @@ MULTI_BOARDS=true
 > 下列命令默认从仓库根目录执行：`python scripts/main.py ...`
 
 ### 1) 原生态（不筛选）
+
 ```bash
 python scripts/main.py boards --topn 10 --summary --wecom
 ```
 
 ### 2) 科技领域快捷筛选（使用 `CONFIG.tech_keywords` 预置词表）
+
 ```bash
 python scripts/main.py boards --topn 10 --summary --wecom --tech-only
 ```
 
 ### 3) 自定义关键词（命令行直写）
+
 ```bash
 python scripts/main.py boards --keywords "AI, 芯片, 半导体, 英伟达, 华为" --topn 10 --summary --wecom
 ```
 
 ### 4) 从文件读取关键词（每行一个或逗号分隔）
+
 ```bash
 python scripts/main.py boards --keywords-file ./keywords.txt --topn 10 --summary
 ```
 
 ### 5) 用环境变量（适合 cron）
+
 ```bash
 KEYWORDS="AI,芯片,大模型" python scripts/main.py boards --topn 10 --summary --wecom
 ```
@@ -145,13 +151,57 @@ KEYWORDS="AI,芯片,大模型" python scripts/main.py boards --topn 10 --summary
 
 ---
 
+## 🧭 其他用法
+
+### 1) 截取热搜榜 realtimehot
+
+```bash
+python scripts/main.py screenshot \
+  --driver resource/chromedriver-mac-arm64/chromedriver \
+  --outdir screenshot \
+  --url "https://s.weibo.com/top/summary?cate=realtimehot"
+```
+
+### 2) 截取社会榜（或其它榜）
+
+```bash
+python scripts/main.py screenshot \
+  --driver resource/chromedriver-mac-arm64/chromedriver \
+  --outdir screenshot \
+  --url "https://s.weibo.com/top/summary?cate=socialevent"
+```
+
+### 3) 桌面分辨率 & 非无头模式（便于排错、手动观察）
+
+```bash
+python scripts/main.py screenshot \
+  --driver resource/chromedriver-mac-arm64/chromedriver \
+  --outdir screenshot \
+  --desktop \
+  --no-headless \
+  --timeout 20
+```
+
+### 4) 跳过 Cookie 注入（如果你没有配置 Cookie）
+
+```bash
+python scripts/main.py screenshot \
+  --driver resource/chromedriver-mac-arm64/chromedriver \
+  --outdir screenshot \
+  --url "https://s.weibo.com/top/summary?cate=realtimehot" \
+  --no-cookie
+```
+
+---
+
 ## 🖼️ 输出内容
 
-- **Markdown**：AI 摘要（限长） + 两榜 Top 3 超链接（各 3 条，共 6 条）  
-- **图片**：优先两榜**合并单图**，若无法合并则回退为两张单图  
-- **截图（可选）**：微博热搜页整页截图  
+- **Markdown**：AI 摘要（限长） + 两榜 Top 3 超链接（各 3 条，共 6 条）
+- **图片**：优先两榜**合并单图**，若无法合并则回退为两张单图
+- **截图（可选）**：微博热搜页整页截图
 
 默认输出目录：
+
 ```
 archive/      # 图片 → 例：20YY年MM月DD日HH:MM.两大榜.png
 screenshot/   # 整页截图
@@ -177,23 +227,23 @@ crontab -e
 
 ## 🧩 进阶与约定
 
-- **渲染合并图**：若 `render_two_boards_image` 可用则直接合成；否则先各自出图再由 Pillow 竖向拼接，并在页眉绘制时间戳与标签。  
-- **关键词匹配**：为简单包含匹配，建议保持词表合理规模。  
-- **控制台打码**：`key/token/cookie/webhook` 等统一打 `**`；URL 仅保留 host，参数值改写为 `**`。  
-- **字体与美观**：`resource/heiti.ttf` 与 `resource/SmileySans.ttf` 需可读，确保中文/数字排版效果稳定。  
+- **渲染合并图**：若 `render_two_boards_image` 可用则直接合成；否则先各自出图再由 Pillow 竖向拼接，并在页眉绘制时间戳与标签。
+- **关键词匹配**：为简单包含匹配，建议保持词表合理规模。
+- **控制台打码**：`key/token/cookie/webhook` 等统一打 `**`；URL 仅保留 host，参数值改写为 `**`。
+- **字体与美观**：`resource/heiti.ttf` 与 `resource/SmileySans.ttf` 需可读，确保中文/数字排版效果稳定。
 
 ---
 
 ## ❓ 常见问题（FAQ）
 
 - **为什么合并图生成失败？**  
-  缺少 Pillow 或字体/资源路径错误会回退为两张单图；请检查 `resource/` 及日志提示。  
+  缺少 Pillow 或字体/资源路径错误会回退为两张单图；请检查 `resource/` 及日志提示。
 
 - **DeepSeek 摘要失败？**  
-  检查 `.env`、网络、`DEEPSEEK_API_KEY` 与 `DEEPSEEK_BASE_URL`。控制台会打印 `available/called/success` 与掩码后的 base。  
+  检查 `.env`、网络、`DEEPSEEK_API_KEY` 与 `DEEPSEEK_BASE_URL`。控制台会打印 `available/called/success` 与掩码后的 base。
 
 - **WeCom 推送失败？**  
-  核对 webhook、网络连通与消息长度；本工具会自动分片超长 Markdown。  
+  核对 webhook、网络连通与消息长度；本工具会自动分片超长 Markdown。
 
 ---
 
@@ -225,9 +275,9 @@ crontab -e
 
 ## 🔒 合规与声明
 
-- 抓取内容版权归原平台与作者所有；本项目仅用于**学习研究与内部信息汇总**。  
-- 使用时请遵循微博、企业微信、DeepSeek 等平台条款与开发者协议；禁止用于商业化抓取或对外分发服务。  
-- 项目默认不持久化任何账号凭据；如需注入 Cookie，请确保来源合法与内部合规。  
+- 抓取内容版权归原平台与作者所有；本项目仅用于**学习研究与内部信息汇总**。
+- 使用时请遵循微博、企业微信、DeepSeek 等平台条款与开发者协议；禁止用于商业化抓取或对外分发服务。
+- 项目默认不持久化任何账号凭据；如需注入 Cookie，请确保来源合法与内部合规。
 
 ---
 
@@ -240,8 +290,8 @@ crontab -e
 
 ## 🙏 致谢
 
-- 微博热搜公开页面  
-- DeepSeek 大模型接口  
+- 微博热搜公开页面
+- DeepSeek 大模型接口
 - Pillow / Requests 等优秀开源组件
 
 ---
